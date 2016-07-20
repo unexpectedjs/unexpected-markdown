@@ -1,9 +1,9 @@
 module.exports = {
-    extends: [
+    'extends': [
         'onelint'
     ],
     env: {
-        es6: false
+        es6: true
     },
     parserOptions: null
 };
