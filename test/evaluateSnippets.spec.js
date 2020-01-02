@@ -113,4 +113,51 @@ describe('extractSnippets', () => {
       errorMessage: 'expected >>bar<< to foo\n\n-bar\n+foo'
     });
   });
+
+  describe('with custom globals', () => {
+    it('should allow specifying additional globals into evaluation', async () => {
+      const snippets = [
+        {
+          lang: 'javascript',
+          flags: { async: true, evaluate: true },
+          index: 40,
+          code: "aliasedExpect(1, 'to equal', 2);"
+        }
+      ];
+
+      await evaluateSnippets(snippets, {
+        globals: {
+          aliasedExpect: () => expect.clone()
+        }
+      });
+
+      expect(snippets[0], 'to satisfy', {
+        htmlErrorMessage:
+          '<div style="font-family: monospace; white-space: nowrap"><div><span style="color: red; font-weight: bold">expected</span>&nbsp;<span style="color: #0086b3">1</span>&nbsp;<span style="color: red; font-weight: bold">to&nbsp;equal</span>&nbsp;<span style="color: #0086b3">2</span></div></div>',
+        errorMessage: 'expected 1 to equal 2'
+      });
+    });
+
+    it('should error on freshExpect if the expect global is not Unexpected', async () => {
+      const snippets = [
+        {
+          lang: 'javascript',
+          flags: { async: true, evaluate: true, freshExpect: true },
+          index: 40,
+          code: "aliasedExpect(1, 'to equal', 2);"
+        }
+      ];
+
+      await evaluateSnippets(snippets, {
+        globals: {
+          expect: () => null
+        }
+      });
+
+      expect(snippets[0], 'to satisfy', {
+        errorMessage:
+          'cannot clone with missing or invalid expect global for freshExpect'
+      });
+    });
+  });
 });
