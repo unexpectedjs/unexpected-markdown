@@ -113,7 +113,8 @@ describe('extractSnippets', () => {
       });
 
       expect(snippets[0], 'to satisfy', {
-        errorMessage: 'cannot clone with missing or invalid expect global for freshExpect'
+        errorMessage:
+          'cannot clone with missing or invalid expect global for freshExpect'
       });
     });
   });
