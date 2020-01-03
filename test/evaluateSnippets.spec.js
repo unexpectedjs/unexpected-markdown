@@ -114,8 +114,8 @@ describe('extractSnippets', () => {
     });
   });
 
-  describe('with custom globals', () => {
-    it('should allow specifying additional globals into evaluation', async () => {
+  describe('with custom sandbox', () => {
+    it('should allow specifying additional globals', async () => {
       const snippets = [
         {
           lang: 'javascript',
