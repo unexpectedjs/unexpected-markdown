@@ -18,7 +18,7 @@ describe('Snippets', () => {
           'foo',
           '  at bar (/path/to/file.js:x:y)',
           '  at quux (/path/to/file.js:x:y)',
-          '```'
+          '```',
         ].join('\n')
       );
 
@@ -28,8 +28,8 @@ describe('Snippets', () => {
             'throw new Error("foo\\n  at bar (/somewhere.js:1:2)\\n  at quux (/blah.js:3:4)\\n  at baz (/yadda.js:5:6)")',
           flags: { evaluate: true },
           output:
-            'foo\n  at bar (/path/to/file.js:x:y)\n  at quux (/path/to/file.js:x:y)'
-        }
+            'foo\n  at bar (/path/to/file.js:x:y)\n  at quux (/path/to/file.js:x:y)',
+        },
       ]);
     });
   });

@@ -1,9 +1,9 @@
 var expect = require('unexpected');
 var UnexpectedMarkdown = require('../lib/UnexpectedMarkdown');
 
-describe('UnexpectedMarkdown', function() {
+describe('UnexpectedMarkdown', function () {
   var markdown;
-  beforeEach(function() {
+  beforeEach(function () {
     markdown = new UnexpectedMarkdown(
       [
         'Asserts deep equality.',
@@ -25,13 +25,13 @@ describe('UnexpectedMarkdown', function() {
         '',
         '```output',
         'Missing output',
-        '```'
+        '```',
       ].join('\n')
     );
   });
 
-  describe('toHtml', function() {
-    it('syntax highlight examples (dark)', function() {
+  describe('toHtml', function () {
+    it('syntax highlight examples (dark)', function () {
       return expect(
         markdown.toHtml({ theme: 'dark' }),
         'when fulfilled',
@@ -40,7 +40,7 @@ describe('UnexpectedMarkdown', function() {
       );
     });
 
-    it('outputs highlight examples (light)', function() {
+    it('outputs highlight examples (light)', function () {
       return expect(
         markdown.toHtml({ theme: 'light' }),
         'when fulfilled',
@@ -50,12 +50,12 @@ describe('UnexpectedMarkdown', function() {
     });
   });
 
-  describe('withUpdatedExamples', function() {
-    it('produces a markdown where the examples has been updated', function() {
+  describe('withUpdatedExamples', function () {
+    it('produces a markdown where the examples has been updated', function () {
       return expect(
         markdown.withUpdatedExamples({}),
         'when fulfilled',
-        expect.it(markdown =>
+        expect.it((markdown) =>
           expect(
             markdown.toString(),
             'to contain',
@@ -69,7 +69,7 @@ describe('UnexpectedMarkdown', function() {
               '               // -foo!',
               '               // +f00!',
               '}',
-              '```'
+              '```',
             ].join('\n')
           )
         )
@@ -86,7 +86,7 @@ describe('UnexpectedMarkdown', function() {
           '',
           '```output',
           'Missing output',
-          '```'
+          '```',
         ].join('\n')
       );
 
@@ -100,7 +100,7 @@ describe('UnexpectedMarkdown', function() {
     });
   });
 
-  it('produces a markdown where the examples has been updated', function() {
+  it('produces a markdown where the examples has been updated', function () {
     const markdown = new UnexpectedMarkdown(
       [
         'Asserts deep equality.',
@@ -112,14 +112,14 @@ describe('UnexpectedMarkdown', function() {
         '<!-- unexpected-markdown cleanStackTrace:true -->',
         '```output',
         'Missing output',
-        '```'
+        '```',
       ].join('\n')
     );
 
     return expect(
       markdown.withUpdatedExamples({}),
       'when fulfilled',
-      expect.it(markdown =>
+      expect.it((markdown) =>
         expect(
           markdown.toString(),
           'to contain',
@@ -129,7 +129,7 @@ describe('UnexpectedMarkdown', function() {
             'foo',
             '  at bar (/path/to/file.js:x:y)',
             '  at quux (/path/to/file.js:x:y)',
-            '```'
+            '```',
           ].join('\n')
         )
       )

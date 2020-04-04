@@ -10,15 +10,15 @@ describe('extractSnippets', () => {
         flags: { evaluate: true },
         index: 24,
         code:
-          'throw new Error("foo\\n  at bar (/somewhere.js:1:2)\\n  at quux (/blah.js:3:4)\\n  at baz (/yadda.js:5:6)")'
+          'throw new Error("foo\\n  at bar (/somewhere.js:1:2)\\n  at quux (/blah.js:3:4)\\n  at baz (/yadda.js:5:6)")',
       },
       {
         lang: 'output',
         flags: { cleanStackTrace: true, evaluate: true },
         index: 198,
         code:
-          'foo\n  at bar (/path/to/file.js:x:y)\n  at quux (/path/to/file.js:x:y)'
-      }
+          'foo\n  at bar (/path/to/file.js:x:y)\n  at quux (/path/to/file.js:x:y)',
+      },
     ];
 
     await evaluateSnippets(snippets);
@@ -27,7 +27,7 @@ describe('extractSnippets', () => {
       htmlErrorMessage:
         '<div style="font-family: monospace; white-space: nowrap"><div><span style="color: red; font-weight: bold">foo</span></div><div><span style="color: red; font-weight: bold">&nbsp;&nbsp;at&nbsp;bar&nbsp;(/somewhere.js:1:2)</span></div><div><span style="color: red; font-weight: bold">&nbsp;&nbsp;at&nbsp;quux&nbsp;(/blah.js:3:4)</span></div><div><span style="color: red; font-weight: bold">&nbsp;&nbsp;at&nbsp;baz&nbsp;(/yadda.js:5:6)</span></div></div>',
       errorMessage:
-        'foo\n  at bar (/somewhere.js:1:2)\n  at quux (/blah.js:3:4)\n  at baz (/yadda.js:5:6)'
+        'foo\n  at bar (/somewhere.js:1:2)\n  at quux (/blah.js:3:4)\n  at baz (/yadda.js:5:6)',
     });
   });
 
@@ -38,8 +38,8 @@ describe('extractSnippets', () => {
           lang: 'javascript',
           flags: { async: true, evaluate: true },
           index: 40,
-          code: "return Promise.reject(new Error('boom'));"
-        }
+          code: "return Promise.reject(new Error('boom'));",
+        },
       ];
 
       await evaluateSnippets(snippets);
@@ -47,7 +47,7 @@ describe('extractSnippets', () => {
       expect(snippets[0], 'to satisfy', {
         htmlErrorMessage:
           '<div style="font-family: monospace; white-space: nowrap"><div><span style="color: red; font-weight: bold">boom</span></div></div>',
-        errorMessage: 'boom'
+        errorMessage: 'boom',
       });
     });
 
@@ -57,8 +57,8 @@ describe('extractSnippets', () => {
           lang: 'javascript',
           flags: { async: true, evaluate: true },
           index: 40,
-          code: 'Promise.resolve();'
-        }
+          code: 'Promise.resolve();',
+        },
       ];
 
       await evaluateSnippets(snippets);
@@ -67,22 +67,20 @@ describe('extractSnippets', () => {
         htmlErrorMessage:
           '<div style="font-family: monospace; white-space: nowrap"><div><span style="color: red; font-weight: bold">Async&nbsp;code&nbsp;block&nbsp;did&nbsp;not&nbsp;return&nbsp;a&nbsp;promise&nbsp;or&nbsp;throw</span></div><div><span style="color: red; font-weight: bold">Promise.resolve();</span></div></div>',
         errorMessage:
-          'Async code block did not return a promise or throw\nPromise.resolve();'
+          'Async code block did not return a promise or throw\nPromise.resolve();',
       });
     });
   });
 
   it('should clone the output from the right expect when rendering the error message', async () => {
-    const unexpected = expect.clone().use(expect => {
+    const unexpected = expect.clone().use((expect) => {
       expect = expect.child();
-      expect.addStyle('fancyQuotes', function(str) {
-        this.red('>>')
-          .text(str)
-          .red('<<');
+      expect.addStyle('fancyQuotes', function (str) {
+        this.red('>>').text(str).red('<<');
       });
 
       expect.exportAssertion('<any> to foo', (expect, subject) => {
-        expect.subjectOutput = function() {
+        expect.subjectOutput = function () {
           // Used to fail with TypeError: this.fancyQuotes is not a function
           this.fancyQuotes(subject);
         };
@@ -95,14 +93,14 @@ describe('extractSnippets', () => {
         lang: 'javascript',
         flags: { evaluate: true },
         index: 24,
-        code: "expect('bar', 'to foo');"
+        code: "expect('bar', 'to foo');",
       },
       {
         lang: 'output',
         flags: { cleanStackTrace: true, evaluate: true },
         index: 198,
-        code: 'expected >>bar<< foo'
-      }
+        code: 'expected >>bar<< foo',
+      },
     ];
 
     await evaluateSnippets(snippets, { unexpected });
@@ -110,7 +108,7 @@ describe('extractSnippets', () => {
     expect(snippets[0], 'to satisfy', {
       htmlErrorMessage:
         '<div style="font-family: monospace; white-space: nowrap"><div><span style="color: red; font-weight: bold">expected</span>&nbsp;<span style="color: red">&gt;&gt;</span>bar<span style="color: red">&lt;&lt;</span>&nbsp;<span style="color: red; font-weight: bold">to&nbsp;foo</span></div><div>&nbsp;</div><div><span style="background-color: red; color: white">bar</span></div><div><span style="background-color: green; color: white">foo</span></div></div>',
-      errorMessage: 'expected >>bar<< to foo\n\n-bar\n+foo'
+      errorMessage: 'expected >>bar<< to foo\n\n-bar\n+foo',
     });
   });
 });

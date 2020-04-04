@@ -19,7 +19,7 @@ function codeToString(obj) {
 var expect = require('unexpected')
   .clone()
   .use(require('magicpen-prism'))
-  .addAssertion('<string> to come out as <function|string>', function(
+  .addAssertion('<string> to come out as <function|string>', function (
     expect,
     subject,
     value
@@ -54,9 +54,9 @@ function fences(code, language) {
   return `\`\`\`${language || 'js'}\n${code}\n\`\`\`\n`;
 }
 
-describe('convertMarkdownToMocha', function() {
-  it('should convert a returning snippet expected to be successful', function() {
-    expect(fences(returningSuccessfulSnippet), 'to come out as', function() {
+describe('convertMarkdownToMocha', function () {
+  it('should convert a returning snippet expected to be successful', function () {
+    expect(fences(returningSuccessfulSnippet), 'to come out as', function () {
       function isPromise(obj) {
         return obj && typeof obj.then === 'function';
       }
@@ -65,14 +65,14 @@ describe('convertMarkdownToMocha', function() {
         unexpected.output.preferredWidth = 80;
       }
 
-      describe('<inline code>', function() {
-        it('example #1 (<inline code>:2:1) should succeed', function() {
+      describe('<inline code>', function () {
+        it('example #1 (<inline code>:2:1) should succeed', function () {
           var expect = unexpected.clone();
           var __returnValue1;
           example1: try {
             var blah = 'abc';
             if (blah === 'abc') {
-              __returnValue1 = expect.promise(function(resolve, reject) {
+              __returnValue1 = expect.promise(function (resolve, reject) {
                 setImmediate(resolve);
               });
               break example1;
@@ -84,7 +84,7 @@ describe('convertMarkdownToMocha', function() {
             return endOfExample1(err);
           }
           if (isPromise(__returnValue1)) {
-            return __returnValue1.then(function() {
+            return __returnValue1.then(function () {
               return endOfExample1();
             }, endOfExample1);
           } else {
@@ -100,14 +100,14 @@ describe('convertMarkdownToMocha', function() {
     });
   });
 
-  it('should convert a returning snippet expected to fail', function() {
+  it('should convert a returning snippet expected to fail', function () {
     expect(
       `${fences(returningSuccessfulSnippet)}\n${fences(
         'theErrorMessage',
         'output'
       )}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -117,14 +117,14 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
               var blah = 'abc';
               if (blah === 'abc') {
-                __returnValue1 = expect.promise(function(resolve, reject) {
+                __returnValue1 = expect.promise(function (resolve, reject) {
                   setImmediate(resolve);
                 });
                 break example1;
@@ -136,7 +136,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -158,7 +158,7 @@ describe('convertMarkdownToMocha', function() {
     );
   });
 
-  it('should convert a snippet where the output block has cleanStackTrace:true', function() {
+  it('should convert a snippet where the output block has cleanStackTrace:true', function () {
     if (process.env.NODE_ENV === 'coverage') return this.skip();
 
     expect(
@@ -169,7 +169,7 @@ describe('convertMarkdownToMocha', function() {
         'output'
       )}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -179,14 +179,14 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
               var blah = 'abc';
               if (blah === 'abc') {
-                __returnValue1 = expect.promise(function(resolve, reject) {
+                __returnValue1 = expect.promise(function (resolve, reject) {
                   setImmediate(resolve);
                 });
                 break example1;
@@ -198,7 +198,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -245,14 +245,14 @@ describe('convertMarkdownToMocha', function() {
     );
   });
 
-  it('should convert a returning snippet expected to fail followed by another one', function() {
+  it('should convert a returning snippet expected to fail followed by another one', function () {
     expect(
       `${fences(returningSuccessfulSnippet)}\n${fences(
         'theErrorMessage',
         'output'
       )}\n${fences(synchronousSuccessfulSnippet)}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -262,14 +262,14 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
               var blah = 'abc';
               if (blah === 'abc') {
-                __returnValue1 = expect.promise(function(resolve, reject) {
+                __returnValue1 = expect.promise(function (resolve, reject) {
                   setImmediate(resolve);
                 });
                 break example1;
@@ -281,7 +281,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -299,13 +299,13 @@ describe('convertMarkdownToMocha', function() {
             }
           });
 
-          it('example #2 (<inline code>:18:1) should succeed', function() {
+          it('example #2 (<inline code>:18:1) should succeed', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
               var blah = 'abc';
               if (blah === 'abc') {
-                __returnValue1 = expect.promise(function(resolve, reject) {
+                __returnValue1 = expect.promise(function (resolve, reject) {
                   setImmediate(resolve);
                 });
                 break example1;
@@ -317,7 +317,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -333,7 +333,7 @@ describe('convertMarkdownToMocha', function() {
                 return endOfExample2(err);
               }
               if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function() {
+                return __returnValue2.then(function () {
                   return endOfExample2();
                 }, endOfExample2);
               } else {
@@ -351,8 +351,8 @@ describe('convertMarkdownToMocha', function() {
     );
   });
 
-  it('should convert non-returning snippet expected to be successful', function() {
-    expect(fences(synchronousSuccessfulSnippet), 'to come out as', function() {
+  it('should convert non-returning snippet expected to be successful', function () {
+    expect(fences(synchronousSuccessfulSnippet), 'to come out as', function () {
       function isPromise(obj) {
         return obj && typeof obj.then === 'function';
       }
@@ -362,8 +362,8 @@ describe('convertMarkdownToMocha', function() {
         unexpected.output.preferredWidth = 80;
       }
 
-      describe('<inline code>', function() {
-        it('example #1 (<inline code>:2:1) should succeed', function() {
+      describe('<inline code>', function () {
+        it('example #1 (<inline code>:2:1) should succeed', function () {
           var expect = unexpected.clone();
           var __returnValue1;
           example1: try {
@@ -373,7 +373,7 @@ describe('convertMarkdownToMocha', function() {
             return endOfExample1(err);
           }
           if (isPromise(__returnValue1)) {
-            return __returnValue1.then(function() {
+            return __returnValue1.then(function () {
               return endOfExample1();
             }, endOfExample1);
           } else {
@@ -389,14 +389,14 @@ describe('convertMarkdownToMocha', function() {
     });
   });
 
-  it('should convert a non-returning snippet expected to fail', function() {
+  it('should convert a non-returning snippet expected to fail', function () {
     expect(
       `${fences(synchronousThrowingSnippet)}\n${fences(
         'theErrorMessage',
         'output'
       )}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -406,8 +406,8 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -417,7 +417,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -439,14 +439,14 @@ describe('convertMarkdownToMocha', function() {
     );
   });
 
-  it('should convert a non-returning snippet expected to fail followed by another one', function() {
+  it('should convert a non-returning snippet expected to fail followed by another one', function () {
     expect(
       `${fences(synchronousThrowingSnippet)}\n${fences(
         'theErrorMessage',
         'output'
       )}\n${fences(synchronousSuccessfulSnippet)}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -456,8 +456,8 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -467,7 +467,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -485,7 +485,7 @@ describe('convertMarkdownToMocha', function() {
             }
           });
 
-          it('example #2 (<inline code>:12:1) should succeed', function() {
+          it('example #2 (<inline code>:12:1) should succeed', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -495,7 +495,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -511,7 +511,7 @@ describe('convertMarkdownToMocha', function() {
                 return endOfExample2(err);
               }
               if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function() {
+                return __returnValue2.then(function () {
                   return endOfExample2();
                 }, endOfExample2);
               } else {
@@ -529,13 +529,13 @@ describe('convertMarkdownToMocha', function() {
     );
   });
 
-  it('should convert a synchronously succeeding snippet followed by another one', function() {
+  it('should convert a synchronously succeeding snippet followed by another one', function () {
     expect(
       `${fences(synchronousSuccessfulSnippet)}\n${fences(
         synchronousThrowingSnippet
       )}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -545,8 +545,8 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should succeed', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should succeed', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -556,7 +556,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -569,7 +569,7 @@ describe('convertMarkdownToMocha', function() {
             }
           });
 
-          it('example #2 (<inline code>:8:1) should succeed', function() {
+          it('example #2 (<inline code>:8:1) should succeed', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -579,7 +579,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -595,7 +595,7 @@ describe('convertMarkdownToMocha', function() {
                 return endOfExample2(err);
               }
               if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function() {
+                return __returnValue2.then(function () {
                   return endOfExample2();
                 }, endOfExample2);
               } else {
@@ -613,14 +613,14 @@ describe('convertMarkdownToMocha', function() {
     );
   });
 
-  it('should inject a fresh unexpected clone before a snippet with #freshExpect:true', function() {
+  it('should inject a fresh unexpected clone before a snippet with #freshExpect:true', function () {
     expect(
       `${fences(synchronousSuccessfulSnippet)}\n${fences(
         synchronousThrowingSnippet,
         'javascript#freshExpect:true'
       )}`,
       'to come out as',
-      function() {
+      function () {
         function isPromise(obj) {
           return obj && typeof obj.then === 'function';
         }
@@ -630,8 +630,8 @@ describe('convertMarkdownToMocha', function() {
           unexpected.output.preferredWidth = 80;
         }
 
-        describe('<inline code>', function() {
-          it('example #1 (<inline code>:2:1) should succeed', function() {
+        describe('<inline code>', function () {
+          it('example #1 (<inline code>:2:1) should succeed', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -641,7 +641,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -654,7 +654,7 @@ describe('convertMarkdownToMocha', function() {
             }
           });
 
-          it('example #2 (<inline code>:8:1) should succeed', function() {
+          it('example #2 (<inline code>:8:1) should succeed', function () {
             var expect = unexpected.clone();
             var __returnValue1;
             example1: try {
@@ -664,7 +664,7 @@ describe('convertMarkdownToMocha', function() {
               return endOfExample1(err);
             }
             if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function() {
+              return __returnValue1.then(function () {
                 return endOfExample1();
               }, endOfExample1);
             } else {
@@ -681,7 +681,7 @@ describe('convertMarkdownToMocha', function() {
                 return endOfExample2(err);
               }
               if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function() {
+                return __returnValue2.then(function () {
                   return endOfExample2();
                 }, endOfExample2);
               } else {
