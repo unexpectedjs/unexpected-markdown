@@ -1,8 +1,8 @@
 const expect = require('unexpected');
 const cleanStackTrace = require('../lib/cleanStackTrace');
 
-describe('cleanStackTrace', function() {
-  it('should turn line numbers into :x:y', function() {
+describe('cleanStackTrace', function () {
+  it('should turn line numbers into :x:y', function () {
     expect(
       cleanStackTrace('foo\n  at bar (/somewhere.js:1:2)'),
       'to contain',
@@ -10,7 +10,7 @@ describe('cleanStackTrace', function() {
     );
   });
 
-  it('should handle a stack trace with evalmachine.<anonymous>', function() {
+  it('should handle a stack trace with evalmachine.<anonymous>', function () {
     expect(
       cleanStackTrace('foo\n  at bar (evalmachine.<anonymous>:3:4)'),
       'to equal',
@@ -18,7 +18,7 @@ describe('cleanStackTrace', function() {
     );
   });
 
-  it('should handle a stack trace with just a path', function() {
+  it('should handle a stack trace with just a path', function () {
     expect(
       cleanStackTrace('foo\n  at /foo/bar.js:3:4'),
       'to equal',
@@ -26,7 +26,7 @@ describe('cleanStackTrace', function() {
     );
   });
 
-  it('should only preserve 2 stack locations per trace', function() {
+  it('should only preserve 2 stack locations per trace', function () {
     expect(
       cleanStackTrace(
         [
@@ -39,7 +39,7 @@ describe('cleanStackTrace', function() {
           '  at bar (/a.js:1:2)',
           '  at baz (/a.js:1:2)',
           '  at quux (/a.js:1:2)',
-          'hey'
+          'hey',
         ].join('\n')
       ),
       'to equal',
@@ -51,7 +51,7 @@ describe('cleanStackTrace', function() {
         'foo',
         '  at bar (/path/to/file.js:x:y)',
         '  at baz (/path/to/file.js:x:y)',
-        'hey'
+        'hey',
       ].join('\n')
     );
   });
