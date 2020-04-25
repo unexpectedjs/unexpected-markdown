@@ -1,4 +1,3 @@
-/* global unexpected:true */
 /* eslint-disable no-labels, mocha/no-nested-tests, mocha/no-identical-title */
 
 var convertMarkdownToMocha = require('../lib/convertMarkdownToMocha');
@@ -6,32 +5,25 @@ var esprima = require('esprima');
 var escodegen = require('escodegen');
 
 function codeToString(obj) {
-  var ast;
-  if (typeof obj === 'function') {
-    obj = `(${obj.toString()}());`;
-  } else {
-    obj = `(function () {${obj}}());`;
-  }
-  ast = esprima.parse(obj).body[0].expression.callee.body;
+  var ast = esprima.parse(obj);
   return escodegen.generate(ast);
 }
 
 var expect = require('unexpected')
   .clone()
   .use(require('magicpen-prism'))
-  .addAssertion('<string> to come out as <function|string>', function (
+  .use(require('unexpected-snapshot'))
+  .addAssertion('<string> to come out as <assertion>', function (
     expect,
     subject,
     value
   ) {
-    expect(
-      codeToString(convertMarkdownToMocha(subject).code).replace(
-        / {4}var fileName = '<inline code>'[\s\S]*$/,
-        '}'
-      ),
-      'to equal',
-      codeToString(value)
-    );
+    const converted = codeToString(
+      convertMarkdownToMocha(subject).code
+    ).replace(/ {4}var fileName = '<inline code>'[\s\S]*$/, '}');
+
+    expect.errorMode = 'nested';
+    return expect.shift(converted);
   });
 
 var synchronousSuccessfulSnippet =
@@ -56,48 +48,53 @@ function fences(code, language) {
 
 describe('convertMarkdownToMocha', function () {
   it('should convert a returning snippet expected to be successful', function () {
-    expect(fences(returningSuccessfulSnippet), 'to come out as', function () {
-      function isPromise(obj) {
-        return obj && typeof obj.then === 'function';
-      }
-      if (typeof unexpected === 'undefined') {
-        unexpected = require('unexpected');
-        unexpected.output.preferredWidth = 80;
-      }
-
-      describe('<inline code>', function () {
-        it('example #1 (<inline code>:2:1) should succeed', function () {
-          var expect = unexpected.clone();
-          var __returnValue1;
-          example1: try {
-            var blah = 'abc';
-            if (blah === 'abc') {
-              __returnValue1 = expect.promise(function (resolve, reject) {
-                setImmediate(resolve);
+    expect(
+      fences(returningSuccessfulSnippet),
+      'to come out as',
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var blah = 'abc';
+                          if (blah === 'abc') {
+                              __returnValue1 = expect.promise(function (resolve, reject) {
+                                  setImmediate(resolve);
+                              });
+                              break example1;
+                          } else {
+                              __returnValue1 = 456;
+                              break example1;
+                          }
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          expect.fail(err);
+                      }
+                  }
               });
-              break example1;
-            } else {
-              __returnValue1 = 456;
-              break example1;
-            }
-          } catch (err) {
-            return endOfExample1(err);
-          }
-          if (isPromise(__returnValue1)) {
-            return __returnValue1.then(function () {
-              return endOfExample1();
-            }, endOfExample1);
-          } else {
-            return endOfExample1();
-          }
-          function endOfExample1(err) {
-            if (err) {
-              expect.fail(err);
-            }
-          }
-        });
-      });
-    });
+          });
+      `
+    );
   });
 
   it('should convert a returning snippet expected to fail', function () {
@@ -107,54 +104,52 @@ describe('convertMarkdownToMocha', function () {
         'output'
       )}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var blah = 'abc';
-              if (blah === 'abc') {
-                __returnValue1 = expect.promise(function (resolve, reject) {
-                  setImmediate(resolve);
-                });
-                break example1;
-              } else {
-                __returnValue1 = 456;
-                break example1;
-              }
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              if (err) {
-                var message = err.isUnexpected
-                  ? err.getErrorMessage('text').toString()
-                  : err.message;
-                expect(message, 'to equal', 'theErrorMessage');
-              } else {
-                throw new Error('expected example to fail');
-              }
-            }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var blah = 'abc';
+                          if (blah === 'abc') {
+                              __returnValue1 = expect.promise(function (resolve, reject) {
+                                  setImmediate(resolve);
+                              });
+                              break example1;
+                          } else {
+                              __returnValue1 = 456;
+                              break example1;
+                          }
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          var message = err.isUnexpected ? err.getErrorMessage('text').toString() : err.message;
+                          expect(message, 'to equal', 'theErrorMessage');
+                      } else {
+                          throw new Error('expected example to fail');
+                      }
+                  }
+              });
           });
-        });
-      }
+      `
     );
   });
 
@@ -169,79 +164,72 @@ describe('convertMarkdownToMocha', function () {
         'output'
       )}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var blah = 'abc';
-              if (blah === 'abc') {
-                __returnValue1 = expect.promise(function (resolve, reject) {
-                  setImmediate(resolve);
-                });
-                break example1;
-              } else {
-                __returnValue1 = 456;
-                break example1;
-              }
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              function cleanStackTrace(stack) {
-                var lines = stack.split('\n');
-                let numStackLines = 0;
-                for (var i = 0; i < lines.length; i += 1) {
-                  const matchStackLine = lines[i].match(
-                    /^( +at (?:[\w<>]+ \()?)[^)]+(\)?)$/
-                  );
-                  if (matchStackLine) {
-                    numStackLines += 1;
-                    if (numStackLines <= 2) {
-                      lines[i] = // eslint-disable-next-line prefer-template
-                        matchStackLine[1] +
-                        '/path/to/file.js:x:y' +
-                        matchStackLine[2];
-                    } else {
-                      lines.splice(i, 1);
-                      i -= 1;
-                    }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var blah = 'abc';
+                          if (blah === 'abc') {
+                              __returnValue1 = expect.promise(function (resolve, reject) {
+                                  setImmediate(resolve);
+                              });
+                              break example1;
+                          } else {
+                              __returnValue1 = 456;
+                              break example1;
+                          }
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
                   } else {
-                    numStackLines = 0;
+                      return endOfExample1();
                   }
-                }
-                return lines.join('\n');
-              }
-              if (err) {
-                var message = err.isUnexpected
-                  ? err.getErrorMessage('text').toString()
-                  : err.message;
-                message = cleanStackTrace(message);
-                expect(message, 'to equal', 'theErrorMessage');
-              } else {
-                throw new Error('expected example to fail');
-              }
-            }
+                  function endOfExample1(err) {
+                      function cleanStackTrace(stack) {
+                          var lines = stack.split('\n');
+                          let numStackLines = 0;
+                          for (var i = 0; i < lines.length; i += 1) {
+                              const matchStackLine = lines[i].match(/^( +at (?:[\w<>]+ \()?)[^)]+(\)?)\$/);
+                              if (matchStackLine) {
+                                  numStackLines += 1;
+                                  if (numStackLines <= 2) {
+                                      lines[i] = matchStackLine[1] + '/path/to/file.js:x:y' + matchStackLine[2];
+                                  } else {
+                                      lines.splice(i, 1);
+                                      i -= 1;
+                                  }
+                              } else {
+                                  numStackLines = 0;
+                              }
+                          }
+                          return lines.join('\n');
+                      }
+                      if (err) {
+                          var message = err.isUnexpected ? err.getErrorMessage('text').toString() : err.message;
+                          message = cleanStackTrace(message);
+                          expect(message, 'to equal', 'theErrorMessage');
+                      } else {
+                          throw new Error('expected example to fail');
+                      }
+                  }
+              });
           });
-        });
-      }
+      `
     );
   });
 
@@ -252,141 +240,143 @@ describe('convertMarkdownToMocha', function () {
         'output'
       )}\n${fences(synchronousSuccessfulSnippet)}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var blah = 'abc';
-              if (blah === 'abc') {
-                __returnValue1 = expect.promise(function (resolve, reject) {
-                  setImmediate(resolve);
-                });
-                break example1;
-              } else {
-                __returnValue1 = 456;
-                break example1;
-              }
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              if (err) {
-                var message = err.isUnexpected
-                  ? err.getErrorMessage('text').toString()
-                  : err.message;
-                expect(message, 'to equal', 'theErrorMessage');
-              } else {
-                throw new Error('expected example to fail');
-              }
-            }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var blah = 'abc';
+                          if (blah === 'abc') {
+                              __returnValue1 = expect.promise(function (resolve, reject) {
+                                  setImmediate(resolve);
+                              });
+                              break example1;
+                          } else {
+                              __returnValue1 = 456;
+                              break example1;
+                          }
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          var message = err.isUnexpected ? err.getErrorMessage('text').toString() : err.message;
+                          expect(message, 'to equal', 'theErrorMessage');
+                      } else {
+                          throw new Error('expected example to fail');
+                      }
+                  }
+              });
+              it('example #2 (<inline code>:18:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var blah = 'abc';
+                          if (blah === 'abc') {
+                              __returnValue1 = expect.promise(function (resolve, reject) {
+                                  setImmediate(resolve);
+                              });
+                              break example1;
+                          } else {
+                              __returnValue1 = 456;
+                              break example1;
+                          }
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      var __returnValue2;
+                      example2:
+                          try {
+                              var foo = 'abc';
+                              expect(foo, 'to equal', 'abc');
+                          } catch (err) {
+                              return endOfExample2(err);
+                          }
+                      if (isPromise(__returnValue2)) {
+                          return __returnValue2.then(function () {
+                              return endOfExample2();
+                          }, endOfExample2);
+                      } else {
+                          return endOfExample2();
+                      }
+                      function endOfExample2(err) {
+                          if (err) {
+                              expect.fail(err);
+                          }
+                      }
+                  }
+              });
           });
-
-          it('example #2 (<inline code>:18:1) should succeed', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var blah = 'abc';
-              if (blah === 'abc') {
-                __returnValue1 = expect.promise(function (resolve, reject) {
-                  setImmediate(resolve);
-                });
-                break example1;
-              } else {
-                __returnValue1 = 456;
-                break example1;
-              }
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            // eslint-disable-next-line handle-callback-err
-            function endOfExample1(err) {
-              var __returnValue2;
-              example2: try {
-                var foo = 'abc';
-                expect(foo, 'to equal', 'abc');
-              } catch (err) {
-                return endOfExample2(err);
-              }
-              if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function () {
-                  return endOfExample2();
-                }, endOfExample2);
-              } else {
-                return endOfExample2();
-              }
-              function endOfExample2(err) {
-                if (err) {
-                  expect.fail(err);
-                }
-              }
-            }
-          });
-        });
-      }
+      `
     );
   });
 
   it('should convert non-returning snippet expected to be successful', function () {
-    expect(fences(synchronousSuccessfulSnippet), 'to come out as', function () {
-      function isPromise(obj) {
-        return obj && typeof obj.then === 'function';
-      }
-
-      if (typeof unexpected === 'undefined') {
-        unexpected = require('unexpected');
-        unexpected.output.preferredWidth = 80;
-      }
-
-      describe('<inline code>', function () {
-        it('example #1 (<inline code>:2:1) should succeed', function () {
-          var expect = unexpected.clone();
-          var __returnValue1;
-          example1: try {
-            var foo = 'abc';
-            expect(foo, 'to equal', 'abc');
-          } catch (err) {
-            return endOfExample1(err);
+    expect(
+      fences(synchronousSuccessfulSnippet),
+      'to come out as',
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
           }
-          if (isPromise(__returnValue1)) {
-            return __returnValue1.then(function () {
-              return endOfExample1();
-            }, endOfExample1);
-          } else {
-            return endOfExample1();
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
           }
-          function endOfExample1(err) {
-            if (err) {
-              expect.fail(err);
-            }
-          }
-        });
-      });
-    });
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          expect.fail(err);
+                      }
+                  }
+              });
+          });
+      `
+    );
   });
 
   it('should convert a non-returning snippet expected to fail', function () {
@@ -396,46 +386,44 @@ describe('convertMarkdownToMocha', function () {
         'output'
       )}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var bar = 'abc';
-              expect(bar, 'to equal', 'def');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              if (err) {
-                var message = err.isUnexpected
-                  ? err.getErrorMessage('text').toString()
-                  : err.message;
-                expect(message, 'to equal', 'theErrorMessage');
-              } else {
-                throw new Error('expected example to fail');
-              }
-            }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var bar = 'abc';
+                          expect(bar, 'to equal', 'def');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          var message = err.isUnexpected ? err.getErrorMessage('text').toString() : err.message;
+                          expect(message, 'to equal', 'theErrorMessage');
+                      } else {
+                          throw new Error('expected example to fail');
+                      }
+                  }
+              });
           });
-        });
-      }
+      `
     );
   });
 
@@ -446,86 +434,84 @@ describe('convertMarkdownToMocha', function () {
         'output'
       )}\n${fences(synchronousSuccessfulSnippet)}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var bar = 'abc';
-              expect(bar, 'to equal', 'def');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              if (err) {
-                var message = err.isUnexpected
-                  ? err.getErrorMessage('text').toString()
-                  : err.message;
-                expect(message, 'to equal', 'theErrorMessage');
-              } else {
-                throw new Error('expected example to fail');
-              }
-            }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var bar = 'abc';
+                          expect(bar, 'to equal', 'def');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          var message = err.isUnexpected ? err.getErrorMessage('text').toString() : err.message;
+                          expect(message, 'to equal', 'theErrorMessage');
+                      } else {
+                          throw new Error('expected example to fail');
+                      }
+                  }
+              });
+              it('example #2 (<inline code>:12:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var bar = 'abc';
+                          expect(bar, 'to equal', 'def');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      var __returnValue2;
+                      example2:
+                          try {
+                              var foo = 'abc';
+                              expect(foo, 'to equal', 'abc');
+                          } catch (err) {
+                              return endOfExample2(err);
+                          }
+                      if (isPromise(__returnValue2)) {
+                          return __returnValue2.then(function () {
+                              return endOfExample2();
+                          }, endOfExample2);
+                      } else {
+                          return endOfExample2();
+                      }
+                      function endOfExample2(err) {
+                          if (err) {
+                              expect.fail(err);
+                          }
+                      }
+                  }
+              });
           });
-
-          it('example #2 (<inline code>:12:1) should succeed', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var bar = 'abc';
-              expect(bar, 'to equal', 'def');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            // eslint-disable-next-line handle-callback-err
-            function endOfExample1(err) {
-              var __returnValue2;
-              example2: try {
-                var foo = 'abc';
-                expect(foo, 'to equal', 'abc');
-              } catch (err) {
-                return endOfExample2(err);
-              }
-              if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function () {
-                  return endOfExample2();
-                }, endOfExample2);
-              } else {
-                return endOfExample2();
-              }
-              function endOfExample2(err) {
-                if (err) {
-                  expect.fail(err);
-                }
-              }
-            }
-          });
-        });
-      }
+      `
     );
   });
 
@@ -535,81 +521,81 @@ describe('convertMarkdownToMocha', function () {
         synchronousThrowingSnippet
       )}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should succeed', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var foo = 'abc';
-              expect(foo, 'to equal', 'abc');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              if (err) {
-                expect.fail(err);
-              }
-            }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          expect.fail(err);
+                      }
+                  }
+              });
+              it('example #2 (<inline code>:8:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      var __returnValue2;
+                      example2:
+                          try {
+                              var bar = 'abc';
+                              expect(bar, 'to equal', 'def');
+                          } catch (err) {
+                              return endOfExample2(err);
+                          }
+                      if (isPromise(__returnValue2)) {
+                          return __returnValue2.then(function () {
+                              return endOfExample2();
+                          }, endOfExample2);
+                      } else {
+                          return endOfExample2();
+                      }
+                      function endOfExample2(err) {
+                          if (err) {
+                              expect.fail(err);
+                          }
+                      }
+                  }
+              });
           });
-
-          it('example #2 (<inline code>:8:1) should succeed', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var foo = 'abc';
-              expect(foo, 'to equal', 'abc');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            // eslint-disable-next-line handle-callback-err
-            function endOfExample1(err) {
-              var __returnValue2;
-              example2: try {
-                var bar = 'abc';
-                expect(bar, 'to equal', 'def');
-              } catch (err) {
-                return endOfExample2(err);
-              }
-              if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function () {
-                  return endOfExample2();
-                }, endOfExample2);
-              } else {
-                return endOfExample2();
-              }
-              function endOfExample2(err) {
-                if (err) {
-                  expect.fail(err);
-                }
-              }
-            }
-          });
-        });
-      }
+      `
     );
   });
 
@@ -620,82 +606,82 @@ describe('convertMarkdownToMocha', function () {
         'javascript#freshExpect:true'
       )}`,
       'to come out as',
-      function () {
-        function isPromise(obj) {
-          return obj && typeof obj.then === 'function';
-        }
-
-        if (typeof unexpected === 'undefined') {
-          unexpected = require('unexpected');
-          unexpected.output.preferredWidth = 80;
-        }
-
-        describe('<inline code>', function () {
-          it('example #1 (<inline code>:2:1) should succeed', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var foo = 'abc';
-              expect(foo, 'to equal', 'abc');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            function endOfExample1(err) {
-              if (err) {
-                expect.fail(err);
-              }
-            }
+      'to equal snapshot',
+      expect.unindent`
+          function isPromise(obj) {
+              return obj && typeof obj.then === 'function';
+          }
+          if (typeof unexpected === 'undefined') {
+              unexpected = require('unexpected');
+              unexpected.output.preferredWidth = 80;
+          }
+          describe('<inline code>', function () {
+              it('example #1 (<inline code>:2:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      if (err) {
+                          expect.fail(err);
+                      }
+                  }
+              });
+              it('example #2 (<inline code>:8:1) should succeed', function () {
+                  var expect = unexpected.clone();
+                  var __returnValue1;
+                  example1:
+                      try {
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
+                      } catch (err) {
+                          return endOfExample1(err);
+                      }
+                  if (isPromise(__returnValue1)) {
+                      return __returnValue1.then(function () {
+                          return endOfExample1();
+                      }, endOfExample1);
+                  } else {
+                      return endOfExample1();
+                  }
+                  function endOfExample1(err) {
+                      expect = unexpected.clone();
+                      var __returnValue2;
+                      example2:
+                          try {
+                              var bar = 'abc';
+                              expect(bar, 'to equal', 'def');
+                          } catch (err) {
+                              return endOfExample2(err);
+                          }
+                      if (isPromise(__returnValue2)) {
+                          return __returnValue2.then(function () {
+                              return endOfExample2();
+                          }, endOfExample2);
+                      } else {
+                          return endOfExample2();
+                      }
+                      function endOfExample2(err) {
+                          if (err) {
+                              expect.fail(err);
+                          }
+                      }
+                  }
+              });
           });
-
-          it('example #2 (<inline code>:8:1) should succeed', function () {
-            var expect = unexpected.clone();
-            var __returnValue1;
-            example1: try {
-              var foo = 'abc';
-              expect(foo, 'to equal', 'abc');
-            } catch (err) {
-              return endOfExample1(err);
-            }
-            if (isPromise(__returnValue1)) {
-              return __returnValue1.then(function () {
-                return endOfExample1();
-              }, endOfExample1);
-            } else {
-              return endOfExample1();
-            }
-            // eslint-disable-next-line handle-callback-err
-            function endOfExample1(err) {
-              expect = unexpected.clone();
-              var __returnValue2;
-              example2: try {
-                var bar = 'abc';
-                expect(bar, 'to equal', 'def');
-              } catch (err) {
-                return endOfExample2(err);
-              }
-              if (isPromise(__returnValue2)) {
-                return __returnValue2.then(function () {
-                  return endOfExample2();
-                }, endOfExample2);
-              } else {
-                return endOfExample2();
-              }
-              function endOfExample2(err) {
-                if (err) {
-                  expect.fail(err);
-                }
-              }
-            }
-          });
-        });
-      }
+      `
     );
   });
 });
