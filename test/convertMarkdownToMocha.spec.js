@@ -62,7 +62,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -115,7 +114,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -171,7 +169,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -205,20 +202,11 @@ describe('convertMarkdownToMocha', function () {
                   }
               });
               it('example #2 (<inline code>:18:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
-                          var blah = 'abc';
-                          if (blah === 'abc') {
-                              __returnValue1 = expect.promise(function (resolve, reject) {
-                                  setImmediate(resolve);
-                              });
-                              break example1;
-                          } else {
-                              __returnValue1 = 456;
-                              break example1;
-                          }
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
                       } catch (err) {
                           return endOfExample1(err);
                       }
@@ -230,25 +218,8 @@ describe('convertMarkdownToMocha', function () {
                       return endOfExample1();
                   }
                   function endOfExample1(err) {
-                      var __returnValue2;
-                      example2:
-                          try {
-                              var foo = 'abc';
-                              expect(foo, 'to equal', 'abc');
-                          } catch (err) {
-                              return endOfExample2(err);
-                          }
-                      if (isPromise(__returnValue2)) {
-                          return __returnValue2.then(function () {
-                              return endOfExample2();
-                          }, endOfExample2);
-                      } else {
-                          return endOfExample2();
-                      }
-                      function endOfExample2(err) {
-                          if (err) {
-                              expect.fail(err);
-                          }
+                      if (err) {
+                          expect.fail(err);
                       }
                   }
               });
@@ -272,7 +243,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -317,7 +287,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -365,7 +334,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should fail with the correct error message', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -391,12 +359,11 @@ describe('convertMarkdownToMocha', function () {
                   }
               });
               it('example #2 (<inline code>:12:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
-                          var bar = 'abc';
-                          expect(bar, 'to equal', 'def');
+                          var foo = 'abc';
+                          expect(foo, 'to equal', 'abc');
                       } catch (err) {
                           return endOfExample1(err);
                       }
@@ -408,25 +375,8 @@ describe('convertMarkdownToMocha', function () {
                       return endOfExample1();
                   }
                   function endOfExample1(err) {
-                      var __returnValue2;
-                      example2:
-                          try {
-                              var foo = 'abc';
-                              expect(foo, 'to equal', 'abc');
-                          } catch (err) {
-                              return endOfExample2(err);
-                          }
-                      if (isPromise(__returnValue2)) {
-                          return __returnValue2.then(function () {
-                              return endOfExample2();
-                          }, endOfExample2);
-                      } else {
-                          return endOfExample2();
-                      }
-                      function endOfExample2(err) {
-                          if (err) {
-                              expect.fail(err);
-                          }
+                      if (err) {
+                          expect.fail(err);
                       }
                   }
               });
@@ -452,7 +402,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -475,12 +424,11 @@ describe('convertMarkdownToMocha', function () {
                   }
               });
               it('example #2 (<inline code>:8:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
-                          var foo = 'abc';
-                          expect(foo, 'to equal', 'abc');
+                          var bar = 'abc';
+                          expect(bar, 'to equal', 'def');
                       } catch (err) {
                           return endOfExample1(err);
                       }
@@ -492,25 +440,8 @@ describe('convertMarkdownToMocha', function () {
                       return endOfExample1();
                   }
                   function endOfExample1(err) {
-                      var __returnValue2;
-                      example2:
-                          try {
-                              var bar = 'abc';
-                              expect(bar, 'to equal', 'def');
-                          } catch (err) {
-                              return endOfExample2(err);
-                          }
-                      if (isPromise(__returnValue2)) {
-                          return __returnValue2.then(function () {
-                              return endOfExample2();
-                          }, endOfExample2);
-                      } else {
-                          return endOfExample2();
-                      }
-                      function endOfExample2(err) {
-                          if (err) {
-                              expect.fail(err);
-                          }
+                      if (err) {
+                          expect.fail(err);
                       }
                   }
               });
@@ -519,11 +450,11 @@ describe('convertMarkdownToMocha', function () {
     );
   });
 
-  it('should inject a fresh unexpected clone before a snippet with #freshExpect:true', function () {
+  it('should inject a fresh unexpected clone before a snippet with #freshContext:true', function () {
     expect(
       `${fences(synchronousSuccessfulSnippet)}\n${fences(
         synchronousThrowingSnippet,
-        'javascript#freshExpect:true'
+        'javascript#freshContext:true'
       )}`,
       'to come out as',
       'to equal snapshot',
@@ -537,7 +468,6 @@ describe('convertMarkdownToMocha', function () {
           }
           describe('<inline code>', function () {
               it('example #1 (<inline code>:2:1) should succeed', function () {
-                  var expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
@@ -560,12 +490,12 @@ describe('convertMarkdownToMocha', function () {
                   }
               });
               it('example #2 (<inline code>:8:1) should succeed', function () {
-                  var expect = unexpected.clone();
+                  expect = unexpected.clone();
                   var __returnValue1;
                   example1:
                       try {
-                          var foo = 'abc';
-                          expect(foo, 'to equal', 'abc');
+                          var bar = 'abc';
+                          expect(bar, 'to equal', 'def');
                       } catch (err) {
                           return endOfExample1(err);
                       }
@@ -577,26 +507,8 @@ describe('convertMarkdownToMocha', function () {
                       return endOfExample1();
                   }
                   function endOfExample1(err) {
-                      expect = unexpected.clone();
-                      var __returnValue2;
-                      example2:
-                          try {
-                              var bar = 'abc';
-                              expect(bar, 'to equal', 'def');
-                          } catch (err) {
-                              return endOfExample2(err);
-                          }
-                      if (isPromise(__returnValue2)) {
-                          return __returnValue2.then(function () {
-                              return endOfExample2();
-                          }, endOfExample2);
-                      } else {
-                          return endOfExample2();
-                      }
-                      function endOfExample2(err) {
-                          if (err) {
-                              expect.fail(err);
-                          }
+                      if (err) {
+                          expect.fail(err);
                       }
                   }
               });
