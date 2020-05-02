@@ -4,6 +4,8 @@ var convertMarkdownToMocha = require('../lib/convertMarkdownToMocha');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 
+var projectPath = require('path').resolve(__dirname, '..');
+
 function codeToString(obj) {
   var ast;
   if (typeof obj === 'function') {
@@ -29,7 +31,7 @@ var expect = require('unexpected')
         '}'
       ),
       'to equal',
-      codeToString(value)
+      codeToString(value).replace(/<projectPath>/g, projectPath)
     );
   });
 
@@ -68,7 +70,7 @@ describe('convertMarkdownToMocha', function () {
             {
               marker: 'unexpected-markdown',
               capture: 'return',
-              pwdPath: '/Users/alex/Documents/projects/unexpected-markdown',
+              pwdPath: '<projectPath>',
               fileGlobals: { expect: () => expect.clone() },
             }
           );
@@ -118,7 +120,7 @@ describe('convertMarkdownToMocha', function () {
               {
                 marker: 'unexpected-markdown',
                 capture: 'return',
-                pwdPath: '/Users/alex/Documents/projects/unexpected-markdown',
+                pwdPath: '<projectPath>',
                 fileGlobals: { expect: () => expect.clone() },
               }
             );
@@ -182,7 +184,7 @@ describe('convertMarkdownToMocha', function () {
               {
                 marker: 'unexpected-markdown',
                 capture: 'return',
-                pwdPath: '/Users/alex/Documents/projects/unexpected-markdown',
+                pwdPath: '<projectPath>',
                 fileGlobals: { expect: () => expect.clone() },
               }
             );
@@ -243,7 +245,7 @@ describe('convertMarkdownToMocha', function () {
               {
                 marker: 'unexpected-markdown',
                 capture: 'return',
-                pwdPath: '/Users/alex/Documents/projects/unexpected-markdown',
+                pwdPath: '<projectPath>',
                 fileGlobals: { expect: () => expect.clone() },
               }
             );
@@ -320,7 +322,7 @@ describe('convertMarkdownToMocha', function () {
               {
                 marker: 'unexpected-markdown',
                 capture: 'return',
-                pwdPath: '/Users/alex/Documents/projects/unexpected-markdown',
+                pwdPath: '<projectPath>',
                 fileGlobals: { expect: () => expect.clone() },
               }
             );
