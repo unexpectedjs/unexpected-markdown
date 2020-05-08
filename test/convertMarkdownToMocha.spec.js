@@ -1,4 +1,7 @@
 /* eslint-disable mocha/no-nested-tests, mocha/no-identical-title */
+var Module = require('module');
+var path = require('path');
+var vm = require('vm');
 
 var convertMarkdownToMocha = require('../lib/convertMarkdownToMocha');
 var esprima = require('esprima');
@@ -15,6 +18,40 @@ function codeToString(obj) {
   }
   ast = esprima.parse(obj).body[0].expression.callee.body;
   return escodegen.generate(ast);
+}
+
+function createRequire(filepath) {
+  const filename = path.join(filepath, 'noop.js');
+  // eslint-disable-next-line node/no-deprecated-api
+  return (Module.createRequire || Module.createRequireFromPath)(filename);
+}
+
+function createTestRunnerEnvironment(code) {
+  const blocks = []; // collect blocks registered with before and it
+
+  const context = {
+    executeTestBlocks: async function () {
+      // execute the collected blocks in order
+      for (const block of blocks) {
+        await block();
+      }
+    },
+    expect: require('unexpected'),
+    describe: (_, fn) => fn(),
+    before: (block) => blocks.push(block),
+    it: (_, block) => blocks.push(block),
+    require: createRequire(path.resolve(__dirname, '..')),
+  };
+  context.global = context;
+
+  return {
+    get code() {
+      return `${code}\nexecuteTestBlocks()`;
+    },
+    get context() {
+      return context;
+    },
+  };
 }
 
 var expect = require('unexpected')
@@ -83,7 +120,10 @@ describe('convertMarkdownToMocha', function () {
         });
         it('example #1 (<inline code>:2:1) should succeed', function () {
           var snippetIndex = 0;
-          var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+          var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+          var evaluatedSnippet = this.evaluatedSnippets.get(
+            currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+          );
           var { output } = evaluatedSnippet;
           if (output === null) {
             throw new Error('snippet was not correctly evaluted');
@@ -133,7 +173,10 @@ describe('convertMarkdownToMocha', function () {
           });
           it('example #1 (<inline code>:2:1) should succeed', function () {
             var snippetIndex = 0;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
             var { output } = evaluatedSnippet;
             if (output === null) {
               throw new Error('snippet was not correctly evaluted');
@@ -150,9 +193,12 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #2 (<inline code>:14:1) should succeed with the correct output', function () {
             var snippetIndex = 1;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
-            var expectedOutput = 'theErrorMessage';
-            expect(expectedOutput, 'to equal', evaluatedSnippet.code);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
+            var writtenOutput = 'theErrorMessage';
+            expect(evaluatedSnippet.output.text, 'to equal', writtenOutput);
           });
         });
       }
@@ -198,7 +244,10 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #1 (<inline code>:2:1) should succeed', function () {
             var snippetIndex = 0;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
             var { output } = evaluatedSnippet;
             if (output === null) {
               throw new Error('snippet was not correctly evaluted');
@@ -215,9 +264,12 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #2 (<inline code>:14:1) should succeed with the correct output', function () {
             var snippetIndex = 1;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
-            var expectedOutput = 'theErrorMessage';
-            expect(expectedOutput, 'to equal', evaluatedSnippet.code);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
+            var writtenOutput = 'theErrorMessage';
+            expect(evaluatedSnippet.output.text, 'to equal', writtenOutput);
           });
         });
       }
@@ -259,7 +311,10 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #1 (<inline code>:2:1) should succeed', function () {
             var snippetIndex = 0;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
             var { output } = evaluatedSnippet;
             if (output === null) {
               throw new Error('snippet was not correctly evaluted');
@@ -276,14 +331,20 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #2 (<inline code>:14:1) should succeed with the correct output', function () {
             var snippetIndex = 1;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
-            var expectedOutput = 'theErrorMessage';
-            expect(expectedOutput, 'to equal', evaluatedSnippet.code);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
+            var writtenOutput = 'theErrorMessage';
+            expect(evaluatedSnippet.output.text, 'to equal', writtenOutput);
           });
 
           it('example #3 (<inline code>:18:1) should succeed', function () {
             var snippetIndex = 2;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
             var { output } = evaluatedSnippet;
             if (output === null) {
               throw new Error('snippet was not correctly evaluted');
@@ -336,7 +397,10 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #1 (<inline code>:2:1) should succeed', function () {
             var snippetIndex = 0;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
             var { output } = evaluatedSnippet;
             if (output === null) {
               throw new Error('snippet was not correctly evaluted');
@@ -353,7 +417,10 @@ describe('convertMarkdownToMocha', function () {
 
           it('example #2 (<inline code>:8:1) should succeed', function () {
             var snippetIndex = 1;
-            var evaluatedSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var currentSnippet = this.evaluatedSnippets.get(snippetIndex);
+            var evaluatedSnippet = this.evaluatedSnippets.get(
+              currentSnippet.lang === 'output' ? snippetIndex - 1 : snippetIndex
+            );
             var { output } = evaluatedSnippet;
             if (output === null) {
               throw new Error('snippet was not correctly evaluted');
@@ -370,5 +437,20 @@ describe('convertMarkdownToMocha', function () {
         });
       }
     );
+  });
+
+  describe('when a block is evaluated', function () {
+    it('should output a diff for a mismatch between evaluated output and the markdown', function () {
+      const input = convertMarkdownToMocha(
+        `${fences('return 456;')}\n${fences('123', 'output')}`
+      ).code;
+      const env = createTestRunnerEnvironment(codeToString(input));
+
+      expect(
+        () => vm.runInNewContext(env.code, env.context),
+        'to be rejected with',
+        "expected '456' to equal '123'\n\n-456\n+123"
+      );
+    });
   });
 });
