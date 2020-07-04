@@ -23,7 +23,6 @@
     "esprima": "^4.0.1",
     "evaldown": "^1.0.0",
     "magicpen-prism": "^4.0.0",
-    "marked-papandreou": "^0.3.3-patch3",
     "source-map": "^0.5.1",
     "source-map-support": "^0.5.9"
   },
