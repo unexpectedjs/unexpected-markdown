@@ -19,7 +19,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "escodegen": "^1.11.0",
+    "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
     "evaldown": "^1.0.0",
     "magicpen-prism": "^4.0.0",
