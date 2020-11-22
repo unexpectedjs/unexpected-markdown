@@ -57,20 +57,19 @@ function createTestRunnerEnvironment(code) {
 var expect = require('unexpected')
   .clone()
   .use(require('magicpen-prism'))
-  .addAssertion('<string> to come out as <function|string>', function (
-    expect,
-    subject,
-    value
-  ) {
-    expect(
-      codeToString(convertMarkdownToMocha(subject).code).replace(
-        / {4}var fileName = '<inline code>'[\s\S]*$/,
-        '}'
-      ),
-      'to equal',
-      codeToString(value).replace(/<projectPath>/g, projectPath)
-    );
-  });
+  .addAssertion(
+    '<string> to come out as <function|string>',
+    function (expect, subject, value) {
+      expect(
+        codeToString(convertMarkdownToMocha(subject).code).replace(
+          / {4}var fileName = '<inline code>'[\s\S]*$/,
+          '}'
+        ),
+        'to equal',
+        codeToString(value).replace(/<projectPath>/g, projectPath)
+      );
+    }
+  );
 
 var synchronousSuccessfulSnippet =
   "var foo = 'abc';\n" + "expect(foo, 'to equal', 'abc');\n";
