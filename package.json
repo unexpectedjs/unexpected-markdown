@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "coverage": "NODE_ENV=coverage nyc --reporter lcov --reporter text mocha",
-    "lint": "eslint . && prettier --check '**/*.js'",
+    "lint": "eslint . && prettier --check '**/*.{js,json,md}'",
     "test": "mocha"
   },
   "dependencies": {
