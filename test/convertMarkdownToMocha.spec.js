@@ -22,7 +22,7 @@ function codeToString(obj) {
 
 function createRequire(filepath) {
   const filename = path.join(filepath, 'noop.js');
-  // eslint-disable-next-line node/no-deprecated-api
+  // eslint-disable-next-line n/no-deprecated-api
   return (Module.createRequire || Module.createRequireFromPath)(filename);
 }
 
