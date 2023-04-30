@@ -21,7 +21,7 @@
   "dependencies": {
     "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
-    "evaldown": "^1.0.0",
+    "evaldown": "^2.0.0",
     "magicpen-prism": "^5.0.0",
     "source-map": "^0.5.1",
     "source-map-support": "^0.5.9"
